@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бортовое оборудование самосвала</title>
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #1a1f2e;
+      color: #e0e0e0;
+      line-height: 1.6;
+      padding: 20px;
+      background-image: linear-gradient(to bottom, #0c1220, #1a2b3a);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      border-bottom: 1px solid #2a3a50;
+    }
+
+    h1 {
+      color: #4dabf7;
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .subtitle {
+      color: #8c9ba5;
+      font-size: 1.1rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .content-wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-bottom: 40px;
+    }
+
+    .models-section {
+      flex: 1;
+      min-width: 300px;
+      background-color: rgba(30, 40, 60, 0.7);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid #2a3a50;
+    }
+
+    .section-title {
+      color: #69db7c;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title i {
+      color: #4dabf7;
+    }
+
+    .model-container {
+      position: relative;
+      width: 100%;
+      height: 350px;
+      background-color: #0f1729;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 25px;
+      border: 1px solid #3a4a6a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+
+    .model {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.5s ease;
+      cursor: grab;
+    }
+
+    .model:active {
+      cursor: grabbing;
+    }
+
+    .model-image {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      transform-origin: center;
+      backface-visibility: hidden;
+    }
+
+    .sensor {
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background-color: rgba(255, 107, 107, 0.9);
+      border: 2px solid #ff6b6b;
+      cursor: pointer;
+      z-index: 10;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 10px rgba(255, 107, 107, 0.7);
+    }
+
+    .sensor:hover {
+      transform: scale(1.3);
+      background-color: rgba(255, 107, 107, 1);
+      box-shadow: 0 0 15px rgba(255, 107, 107, 0.9);
+    }
+
+    .sensor-label {
+      position: absolute;
+      background-color: rgba(40, 50, 70, 0.95);
+      color: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border: 1px solid #4dabf7;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      top: -45px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .sensor-label::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: #4dabf7 transparent transparent transparent;
+    }
+
+    .sensor:hover .sensor-label {
+      opacity: 1;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .rotate-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      background-color: #2a3a50;
+      color: #e0e0e0;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background-color: #3a4a6a;
+      transform: translateY(-2px);
+    }
+
+    .btn i {
+      font-size: 1.1rem;
+    }
+
+    .angle-display {
+      background-color: rgba(40, 50, 70, 0.7);
+      padding: 8px 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      border: 1px solid #3a4a6a;
+    }
+
+    .info-panel {
+      flex: 1;
+      min-width: 300px;
+      background-color: rgba(30, 40, 60, 0.7);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      border: 1px solid #2a3a50;
+    }
+
+    .info-content {
+      margin-top: 20px;
+    }
+
+    .sensor-list {
+      list-style-type: none;
+      margin-bottom: 30px;
+    }
+
+    .sensor-item {
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      background-color: rgba(40, 50, 70, 0.5);
+      border-radius: 6px;
+      border-left: 4px solid #4dabf7;
+      transition: all 0.3s ease;
+    }
+
+    .sensor-item:hover {
+      background-color: rgba(50, 70, 90, 0.7);
+      transform: translateX(5px);
+    }
+
+    .sensor-name {
+      color: #4dabf7;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .sensor-description {
+      color: #a0b3c6;
+      font-size: 0.9rem;
+    }
+
+    .data-block {
+      background-color: rgba(20, 30, 50, 0.7);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #2a3a50;
+    }
+
+    .data-block h3 {
+      color: #69db7c;
+      margin-bottom: 15px;
+      font-size: 1.3rem;
+    }
+
+    .data-block p {
+      color: #a0b3c6;
+      line-height: 1.7;
+    }
+
+    .instructions {
+      background-color: rgba(20, 30, 50, 0.7);
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+      border: 1px solid #3a4a6a;
+    }
+
+    .instructions h3 {
+      color: #ff922b;
+      margin-bottom: 10px;
+    }
+
+    .instructions ul {
+      padding-left: 20px;
+      color: #a0b3c6;
+    }
+
+    .instructions li {
+      margin-bottom: 8px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      margin-top: 30px;
+      color: #8c9ba5;
+      font-size: 0.9rem;
+      border-top: 1px solid #2a3a50;
+    }
+
+    @media (max-width: 768px) {
+      .content-wrapper {
+        flex-direction: column;
+      }
+
+      .model-container {
+        height: 280px;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-truck-monster"></i> БОРТОВОЕ ОБОРУДОВАНИЕ САМОСВАЛА
+      </h1>
+      <p class="subtitle">Интерактивная визуализация оборудования транспортных
+        средств, включая гидравлические системы, аварийные рамки и датчики,
+        подключенные к центральному блоку обработки данных</p>
+    </header>
+
+    <div class="content-wrapper">
+      <section class="models-section">
+        <h2 class="section-title"><i class="fas fa-cube"></i> 3D-модели
+          оборудования</h2>
+
+        <div class="model-controls">
+          <div class="model-selector">
+            <button id="dumpTruckBtn" class="btn active"><i
+                class="fas fa-truck-pickup"></i> Самосвал</button>
+            <button id="drillRigBtn" class="btn"><i class="fas fa-digging"></i>
+              Буровая установка</button>
+          </div>
+        </div>
+
+        <div class="model-container" id="modelContainer">
+          <!-- 3D модель будет здесь -->
+          <div class="model" id="model">
+            <img src="./f_176693949710541e.jpg" alt="Самосвал"
+              class="model-image" id="modelImage">
+
+            <!-- Датчики на модели самосвала -->
+            <div class="sensor" style="top: 30%; left: 40%;">
+              <div class="sensor-label">Датчик давления гидравлики</div>
+            </div>
+            <div class="sensor" style="top: 50%; left: 60%;">
+              <div class="sensor-label">Датчик температуры двигателя</div>
+            </div>
+            <div class="sensor" style="top: 65%; left: 35%;">
+              <div class="sensor-label">Датчик уровня топлива</div>
+            </div>
+            <div class="sensor" style="top: 40%; left: 75%;">
+              <div class="sensor-label">Датчик угла наклона кузова</div>
+            </div>
+            <div class="sensor" style="top: 20%; left: 55%;">
+              <div class="sensor-label">Датчик давления в шинах</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="rotate-controls">
+            <button id="rotateLeft" class="btn"><i class="fas fa-undo-alt"></i>
+              Влево</button>
+            <button id="rotateRight" class="btn"><i
+                class="fas fa-redo-alt"></i> Вправо</button>
+            <button id="resetRotation" class="btn"><i
+                class="fas fa-sync-alt"></i> Сброс</button>
+          </div>
+          <div class="angle-display">
+            Угол: <span id="angleValue">0°</span>
+          </div>
+        </div>
+
+        <div class="instructions">
+          <h3><i class="fas fa-info-circle"></i> Инструкция</h3>
+          <ul>
+            <li>Перетаскивайте модель мышью для вращения</li>
+            <li>Используйте кнопки для управления вращением</li>
+            <li>Наведите курсор на датчик (красная точка) для отображения его
+              названия</li>
+            <li>Переключайтесь между моделями с помощью кнопок выше</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="info-panel">
+        <h2 class="section-title"><i class="fas fa-microchip"></i> Центральный
+          блок обработки данных</h2>
+
+        <div class="info-content">
+          <div class="data-block">
+            <h3><i class="fas fa-server"></i> Основные функции</h3>
+            <p>Центральный блок обработки данных собирает информацию со всех
+              датчиков оборудования, анализирует состояние систем и
+              обеспечивает работу основных логистических алгоритмов для
+              эффективной эксплуатации транспортных средств.</p>
+          </div>
+
+          <div class="data-block">
+            <h3><i class="fas fa-project-diagram"></i> Подключенные системы
+            </h3>
+            <p>Блок взаимодействует с гидравлическими системами подъема кузова,
+              аварийными рамками безопасности, топливной системой, системой
+              контроля давления в шинах и другими критически важными
+              компонентами.</p>
+          </div>
+
+          <h3 class="section-title"><i class="fas fa-sensor"></i> Датчики на
+            модели</h3>
+          <ul class="sensor-list">
+            <li class="sensor-item">
+              <div class="sensor-name">Датчик давления гидравлики</div>
+              <div class="sensor-description">Контролирует давление в
+                гидравлической системе подъема кузова</div>
+            </li>
+            <li class="sensor-item">
+              <div class="sensor-name">Датчик температуры двигателя</div>
+              <div class="sensor-description">Отслеживает температурный режим
+                работы двигателя</div>
+            </li>
+            <li class="sensor-item">
+              <div class="sensor-name">Датчик уровня топлива</div>
+              <div class="sensor-description">Определяет остаток топлива в баке
+              </div>
+            </li>
+            <li class="sensor-item">
+              <div class="sensor-name">Датчик угла наклона кузова</div>
+              <div class="sensor-description">Измеряет угол подъема кузова для
+                контроля разгрузки</div>
+            </li>
+            <li class="sensor-item">
+              <div class="sensor-name">Датчик давления в шинах</div>
+              <div class="sensor-description">Мониторит давление в шинах для
+                безопасности движения</div>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      <p>Интерактивная 3D-визуализация бортового оборудования самосвала и
+        буровой установки</p>
+      <p>Все модели и данные являются демонстрационными</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Элементы DOM
+      const model = document.getElementById('model');
+      const modelImage = document.getElementById('modelImage');
+      const angleValue = document.getElementById('angleValue');
+      const rotateLeftBtn = document.getElementById('rotateLeft');
+      const rotateRightBtn = document.getElementById('rotateRight');
+      const resetRotationBtn = document.getElementById('resetRotation');
+      const dumpTruckBtn = document.getElementById('dumpTruckBtn');
+      const drillRigBtn = document.getElementById('drillRigBtn');
+
+      // Переменные для управления вращением
+      let currentAngle = 0;
+      let isDragging = false;
+      let startX = 0;
+      let startAngle = 0;
+
+      // Изображения для моделей
+      const modelImages = {
+        dumpTruck: 'https://cdn.pixabay.com/photo/2017/08/02/11/26/dump-truck-2571536_1280.png',
+        drillRig: 'https://cdn.pixabay.com/photo/2017/08/31/05/47/construction-2699522_1280.png'
+      };
+
+      // Датчики для каждой модели (координаты и названия)
+      const modelSensors = {
+        dumpTruck: [
+          { top: '30%', left: '40%', label: 'Датчик давления гидравлики' },
+          { top: '50%', left: '60%', label: 'Датчик температуры двигателя' },
+          { top: '65%', left: '35%', label: 'Датчик уровня топлива' },
+          { top: '40%', left: '75%', label: 'Датчик угла наклона кузова' },
+          { top: '20%', left: '55%', label: 'Датчик давления в шинах' }
+        ],
+        drillRig: [
+          { top: '25%', left: '50%', label: 'Датчик глубины бурения' },
+          { top: '45%', left: '65%', label: 'Датчик давления бурового раствора' },
+          { top: '60%', left: '40%', label: 'Датчик вибрации установки' },
+          { top: '35%', left: '30%', label: 'Датчик нагрузки на крон' },
+          { top: '70%', left: '70%', label: 'Датчик температуры двигателя' }
+        ]
+      };
+
+      // Текущая модель
+      let currentModel = 'dumpTruck';
+
+      // Функция обновления угла поворота
+      function updateRotation() {
+        model.style.transform = `rotateY(${currentAngle}deg)`;
+        angleValue.textContent = `${currentAngle}°`;
+
+        // Ограничение угла для лучшего UX (можно убрать для полных 360°)
+        // if (currentAngle > 180) currentAngle = 180;
+        // if (currentAngle < -180) currentAngle = -180;
+      }
+
+      // Функция вращения влево
+      function rotateLeft() {
+        currentAngle -= 15;
+        updateRotation();
+      }
+
+      // Функция вращения вправо
+      function rotateRight() {
+        currentAngle += 15;
+        updateRotation();
+      }
+
+      // Функция сброса вращения
+      function resetRotation() {
+        currentAngle = 0;
+        updateRotation();
+      }
+
+      // Функция переключения модели
+      function switchModel(modelType) {
+        currentModel = modelType;
+
+        // Обновляем изображение
+        modelImage.src = modelImages[modelType];
+
+        // Обновляем активную кнопку
+        dumpTruckBtn.classList.toggle('active', modelType === 'dumpTruck');
+        drillRigBtn.classList.toggle('active', modelType === 'drillRig');
+
+        // Сбрасываем вращение
+        resetRotation();
+
+        // Обновляем датчики
+        updateSensors();
+      }
+
+      // Функция обновления датчиков на модели
+      function updateSensors() {
+        // Удаляем старые датчики
+        const oldSensors = document.querySelectorAll('.sensor');
+        oldSensors.forEach(sensor => sensor.remove());
+
+        // Добавляем новые датчики
+        modelSensors[currentModel].forEach(sensor => {
+          const sensorElement = document.createElement('div');
+          sensorElement.className = 'sensor';
+          sensorElement.style.top = sensor.top;
+          sensorElement.style.left = sensor.left;
+
+          const labelElement = document.createElement('div');
+          labelElement.className = 'sensor-label';
+          labelElement.textContent = sensor.label;
+
+          sensorElement.appendChild(labelElement);
+          model.appendChild(sensorElement);
+        });
+      }
+
+      // Обработчики событий для кнопок вращения
+      rotateLeftBtn.addEventListener('click', rotateLeft);
+      rotateRightBtn.addEventListener('click', rotateRight);
+      resetRotationBtn.addEventListener('click', resetRotation);
+
+      // Обработчики событий для переключения моделей
+      dumpTruckBtn.addEventListener('click', () => switchModel('dumpTruck'));
+      drillRigBtn.addEventListener('click', () => switchModel('drillRig'));
+
+      // Обработчики событий для вращения перетаскиванием
+      model.addEventListener('mousedown', startDrag);
+      model.addEventListener('touchstart', startDragTouch);
+
+      function startDrag(e) {
+        e.preventDefault();
+        isDragging = true;
+        startX = e.clientX;
+        startAngle = currentAngle;
+        model.style.cursor = 'grabbing';
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', stopDrag);
+      }
+
+      function startDragTouch(e) {
+        if (e.touches.length === 1) {
+          e.preventDefault();
+          isDragging = true;
+          startX = e.touches[0].clientX;
+          startAngle = currentAngle;
+
+          document.addEventListener('touchmove', dragTouch);
+          document.addEventListener('touchend', stopDrag);
+        }
+      }
+
+      function drag(e) {
+        if (!isDragging) return;
+
+        const deltaX = e.clientX - startX;
+        // Чувствительность вращения
+        currentAngle = startAngle + deltaX * 0.5;
+        updateRotation();
+      }
+
+      function dragTouch(e) {
+        if (!isDragging || e.touches.length !== 1) return;
+
+        const deltaX = e.touches[0].clientX - startX;
+        // Чувствительность вращения
+        currentAngle = startAngle + deltaX * 0.5;
+        updateRotation();
+      }
+
+      function stopDrag() {
+        isDragging = false;
+        model.style.cursor = 'grab';
+
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('touchmove', dragTouch);
+        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('touchend', stopDrag);
+      }
+
+      // Инициализация
+      updateRotation();
+      updateSensors();
+
+      // Добавляем возможность вращения с помощью клавиатуры
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          rotateLeft();
+        } else if (e.key === 'ArrowRight') {
+          rotateRight();
+        } else if (e.key === 'r' || e.key === 'R') {
+          resetRotation();
+        }
+      });
+    });
+  </script>
+</body>
+
+</html>
